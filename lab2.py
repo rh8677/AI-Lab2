@@ -79,6 +79,9 @@ def test_prop():
                     expressions.append(comb)
                 else:
                     expressions.append(comb)
+                comb = None
+                sec = None
+                thi = None
             else:
                 first = values[0]
                 second = values[1]
@@ -89,9 +92,26 @@ def test_prop():
                     comb = first[1:len(first)] + " → " + second + " ∨ " + third
                 else:
                     comb = second[1:len(second)] + " ∧ " + third[1:len(third)] + " → " + first
+        if comb is not None:
+            expressions.append(comb)
+            comb = None
+            sec = None
+            thi = None
 
     for expression in expressions:
         values = expression.split(" ")
+        if len(values) == 1:
+            value = values[0]
+            for i in expressions:
+                comparable = i.split(" ")
+                if len(comparable) == 3:
+                    first = comparable[0]
+                    operator = comparable[1]
+                    second = comparable[2]
+                    if first == value[1:len(value)] and operator == "∨":
+                        expressions.append(second)
+                    if second == value[1:len(value)] and operator == "∨":
+                        expressions.append(first)
         if len(values) == 3:
             first = values[0]
             operator = values[1]
@@ -99,10 +119,51 @@ def test_prop():
             for i in expressions:
                 if i == first and operator == "→":
                     expressions.append(second)
+        if len(values) == 4:
+            first = values[0]
+            operator = values[1]
+            second = values[2]
+            for i in expressions:
+                if i == first and operator == "→":
+                    expressions.append("¬" + second)
+
+    for expression in expressions:
+        values = expression.split(" ")
+        if len(values) == 5:
+            first = values[0]
+            satisfied = False
+            satisfaction = []
+            for i in expressions:
+                comparable = i.split(" ")
+                if len(comparable) == 1:
+                    satisfaction.append(comparable[0])
+            for j in satisfaction:
+                if j == first:
+                    satisfied = True
+            if satisfied:
+                expressions.append(values[2])
+                expressions.append(values[4])
+        if len(values) == 7:
+            first = values[0]
+            fir_satisfied = False
+            second = values[2]
+            sec_satisfied = False
+            satisfaction = []
+            for i in expressions:
+                comparable = i.split(" ")
+                if len(comparable) == 1:
+                    satisfaction.append(comparable[0])
+            for j in satisfaction:
+                if j == first:
+                    fir_satisfied = True
+                if j == second:
+                    sec_satisfied = True
+            if fir_satisfied and sec_satisfied:
+                expressions.append(values[4])
+                expressions.append(values[6])
 
     good = "yes"
     for expression in expressions:
-        print(expression)
         for comparable in expressions:
             if comparable[1:len(comparable)] == expression:
                 good = "no"
