@@ -157,7 +157,7 @@ def test_functions():
                     first = comparable[0]
                     operator = comparable[1]
                     second = comparable[2]
-                    if first == value and operator == "->" and second not in revised_expressions:
+                    if first == value and operator == "→" and second not in revised_expressions:
                         revised_expressions.append(second)
         if len(values) == 3:
             first = values[0]
@@ -337,12 +337,289 @@ def test_prop():
 
 # Tests the test cases for universals
 def test_universals():
-    return
+    for clause in clauses:
+        new = None
+        i = 0
+        while i < len(clause)-2:
+            if clause[i:i+2] in variables:
+                if new is not None:
+                    new = new.replace(clause[i:i+2], "%" + clause[i:i+1])
+                else:
+                    new = clause.replace(clause[i:i+2], "%" + clause[i:i+1])
+            i += 1
+        if new is not None:
+            revised_clauses.append(new)
+        else:
+            revised_clauses.append(clause)
+
+    comb = None
+    sec = None
+    thi = None
+    for clause in revised_clauses:
+        values = clause.split(" ")
+        if len(values) == 1:
+            expressions.append(values[0])
+        elif len(values) == 2:
+            first = values[0]
+            second = values[1]
+            if first[0:1] == "!":
+                if second[0:1] == "!":
+                    expressions.append(first[1:len(first)] + " → ¬" + second[1:len(second)])
+                    for i in expressions:
+                        if first[1:len(first)] == i:
+                            expressions.append("¬" + second[1:len(second)])
+                else:
+                    expressions.append(first[1:len(first)] + " → " + second)
+                    for i in expressions:
+                        if first[1:len(first)] == i:
+                            expressions.append(second)
+            else:
+                expressions.append(first + " ∨ " + second)
+        else:
+            if comb is not None:
+                second = values[1]
+                third = values[2]
+                if second == sec and third == thi:
+                    comb += " ^ " + values[0]
+                    expressions.append(comb)
+                else:
+                    expressions.append(comb)
+                comb = None
+                sec = None
+                thi = None
+            else:
+                first = values[0]
+                second = values[1]
+                sec = second
+                third = values[2]
+                thi = third
+                if first[0:1] == "!":
+                    comb = first[1:len(first)] + " → " + second + " ∨ " + third
+                else:
+                    comb = second[1:len(second)] + " ∧ " + third[1:len(third)] + " → " + first
+        if comb is not None:
+            expressions.append(comb)
+            comb = None
+            sec = None
+            thi = None
+
+    for expression in expressions:
+        new = None
+        for constant in constants:
+            i = 0
+            while i < (len(expression)-len(constant)):
+                if expression[i:i + len(constant)] == constant:
+                    new = expression.replace(expression[i:i + len(constant)], "%x")
+                i += 1
+        if new is None:
+            revised_expressions.append(expression)
+        else:
+            revised_expressions.append(new)
+
+    for expression in revised_expressions:
+        values = expression.split(" ")
+        if len(values) == 1:
+            value = values[0]
+            for i in revised_expressions:
+                comparable = i.split(" ")
+                if len(comparable) == 3:
+                    first = comparable[0]
+                    operator = comparable[1]
+                    second = comparable[2]
+                    if first == value and operator == "→" and second not in revised_expressions:
+                        revised_expressions.append(second)
+                    if first == value[1:len(value)] and operator == "∨":
+                        revised_expressions.append(second)
+                    if second == value[1:len(value)] and operator == "∨":
+                        revised_expressions.append(first)
+        if len(values) == 3:
+            first = values[0]
+            operator = values[1]
+            second = values[2]
+            for i in revised_expressions:
+                if i == first and operator == "→" and second not in revised_expressions:
+                    revised_expressions.append(second)
+
+    for expression in revised_expressions:
+        values = expression.split(" ")
+        if len(values) == 5:
+            first = values[0]
+            satisfied = False
+            satisfaction = []
+            for i in revised_expressions:
+                comparable = i.split(" ")
+                if len(comparable) == 1:
+                    satisfaction.append(comparable[0])
+            for j in satisfaction:
+                if j == first:
+                    satisfied = True
+            if satisfied:
+                revised_expressions.append(values[2])
+                revised_expressions.append(values[4])
+        if len(values) == 7:
+            first = values[0]
+            fir_satisfied = False
+            second = values[2]
+            sec_satisfied = False
+            satisfaction = []
+            for i in revised_expressions:
+                comparable = i.split(" ")
+                if len(comparable) == 1:
+                    satisfaction.append(comparable[0])
+            for j in satisfaction:
+                if j == first:
+                    fir_satisfied = True
+                if j == second:
+                    sec_satisfied = True
+            if fir_satisfied and sec_satisfied:
+                revised_expressions.append(values[4])
+                revised_expressions.append(values[6])
+
+    good = "yes"
+    for expression in revised_expressions:
+        for comparable in revised_expressions:
+            if comparable[1:len(comparable)] == expression:
+                good = "no"
+    print(good)
 
 
 # Tests the test cases for universals + constants
 def test_universe_constants():
-    return
+    for clause in clauses:
+        new = None
+        i = 0
+        while i < len(clause)-2:
+            if clause[i:i+2] in variables:
+                if new is not None:
+                    new = new.replace(clause[i:i+2], "%" + clause[i:i+1])
+                else:
+                    new = clause.replace(clause[i:i+2], "%" + clause[i:i+1])
+            i += 1
+        if new is not None:
+            revised_clauses.append(new)
+        else:
+            revised_clauses.append(clause)
+
+    comb = None
+    sec = None
+    thi = None
+    for clause in revised_clauses:
+        values = clause.split(" ")
+        if len(values) == 1:
+            expressions.append(values[0])
+        elif len(values) == 2:
+            first = values[0]
+            second = values[1]
+            if first[0:1] == "!":
+                if second[0:1] == "!":
+                    expressions.append(first[1:len(first)] + " → ¬" + second[1:len(second)])
+                    for i in expressions:
+                        if first[1:len(first)] == i:
+                            expressions.append("¬" + second[1:len(second)])
+                else:
+                    expressions.append(first[1:len(first)] + " → " + second)
+                    for i in expressions:
+                        if first[1:len(first)] == i:
+                            expressions.append(second)
+            else:
+                expressions.append(first + " ∨ " + second)
+        else:
+            if comb is not None:
+                second = values[1]
+                third = values[2]
+                if second == sec and third == thi:
+                    comb += " ^ " + values[0]
+                    expressions.append(comb)
+                else:
+                    expressions.append(comb)
+                comb = None
+                sec = None
+                thi = None
+            else:
+                first = values[0]
+                second = values[1]
+                sec = second
+                third = values[2]
+                thi = third
+                if first[0:1] == "!":
+                    comb = first[1:len(first)] + " → " + second + " ∨ " + third
+                else:
+                    comb = second[1:len(second)] + " ∧ " + third[1:len(third)] + " → " + first
+
+    for expression in expressions:
+        new = None
+        for constant in constants:
+            i = 0
+            while i < (len(expression) - len(constant)):
+                if expression[i:i + len(constant)] == constant:
+                    new = expression.replace(expression[i:i + len(constant)], "%x")
+                i += 1
+        if new is None:
+            revised_expressions.append(expression)
+        else:
+            revised_expressions.append(new)
+
+    for expression in revised_expressions:
+        values = expression.split(" ")
+        if len(values) == 1:
+            value = values[0]
+            for i in revised_expressions:
+                comparable = i.split(" ")
+                if len(comparable) == 3:
+                    first = comparable[0]
+                    operator = comparable[1]
+                    second = comparable[2]
+                    if first == value and operator == "→" and second not in revised_expressions:
+                        revised_expressions.append(second)
+        if len(values) == 3:
+            first = values[0]
+            operator = values[1]
+            second = values[2]
+            for i in revised_expressions:
+                if i == first and operator == "→" and second not in revised_expressions:
+                    revised_expressions.append(second)
+
+    for expression in revised_expressions:
+        values = expression.split(" ")
+        if len(values) == 5:
+            first = values[0]
+            satisfied = False
+            satisfaction = []
+            for i in revised_expressions:
+                comparable = i.split(" ")
+                if len(comparable) == 1:
+                    satisfaction.append(comparable[0])
+            for j in satisfaction:
+                if j == first:
+                    satisfied = True
+            if satisfied:
+                revised_expressions.append(values[2])
+                revised_expressions.append(values[4])
+        if len(values) == 7:
+            first = values[0]
+            fir_satisfied = False
+            second = values[2]
+            sec_satisfied = False
+            satisfaction = []
+            for i in revised_expressions:
+                comparable = i.split(" ")
+                if len(comparable) == 1:
+                    satisfaction.append(comparable[0])
+            for j in satisfaction:
+                if j == first:
+                    fir_satisfied = True
+                if j == second:
+                    sec_satisfied = True
+            if fir_satisfied and sec_satisfied:
+                revised_expressions.append(values[4])
+                revised_expressions.append(values[6])
+
+    good = "yes"
+    for expression in revised_expressions:
+        for comparable in revised_expressions:
+            if comparable[1:len(comparable)] == expression:
+                good = "no"
+    print(good)
 
 
 # Parses the file content into global data structures
