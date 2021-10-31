@@ -8,6 +8,7 @@ functions = []
 predicates = []
 revised_clauses = []
 revised_expressions = []
+unification = []
 variables = []
 
 
@@ -335,6 +336,16 @@ def test_prop():
     print(good)
 
 
+# Performs unification on clauses
+def unify():
+    clause = ""
+    for param in unification:
+        clause += param
+        if param != unification[len(unification)-1]:
+            clause += " ^ "
+    revised_clauses.append(clause)
+
+
 # Tests the test cases for universals
 def test_universals():
     for clause in clauses:
@@ -359,6 +370,7 @@ def test_universals():
         values = clause.split(" ")
         if len(values) == 1:
             expressions.append(values[0])
+            unification.append(values[0])
         elif len(values) == 2:
             first = values[0]
             second = values[1]
@@ -402,6 +414,7 @@ def test_universals():
             comb = None
             sec = None
             thi = None
+    unify()
 
     for expression in expressions:
         new = None
@@ -507,6 +520,7 @@ def test_universe_constants():
         values = clause.split(" ")
         if len(values) == 1:
             expressions.append(values[0])
+            unification.append(values[0])
         elif len(values) == 2:
             first = values[0]
             second = values[1]
@@ -545,6 +559,7 @@ def test_universe_constants():
                     comb = first[1:len(first)] + " → " + second + " ∨ " + third
                 else:
                     comb = second[1:len(second)] + " ∧ " + third[1:len(third)] + " → " + first
+    unify()
 
     for expression in expressions:
         new = None
